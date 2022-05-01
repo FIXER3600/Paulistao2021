@@ -12,43 +12,41 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import model.Jogo;
+import model.Resultado;
+import persistence.ClassificacaoDao;
 import persistence.GenericDao;
-import persistence.IJogoDao;
-import persistence.JogoDao;
+import persistence.IClassificacaoDao;
 
-@WebServlet("/ServletJogo")
-public class ServletJogo extends HttpServlet {
+
+@WebServlet("/ServletClassificacao")
+public class ServletClassificacao extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-	private IJogoDao jDao;
-	
-    public ServletJogo()  throws ClassNotFoundException, SQLException{
-        super();
-        this.jDao = new JogoDao(new GenericDao());
-        		
-    }
     
+	private IClassificacaoDao cDao;
+	
+    public ServletClassificacao() throws ClassNotFoundException, SQLException{
+        super();
+        this.cDao = new ClassificacaoDao(new GenericDao());
+    }
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String botao = request.getParameter("gerar_jogos");
-    	List<Jogo> jogos = new ArrayList<Jogo>();
+		String botao = request.getParameter("class_geral"); 	
+    	List<Resultado> resultados = new ArrayList<Resultado>();	
     	String erro = "";
     	String saida = "";
     	try {
-    		if(botao.equals("Gerar Jogos")) {
-    			jDao.gerarJogos();
-    			jogos = this.jDao.listarJogos();
+    		if(botao.equals("Classificacao Geral")) {
+    			resultados = this.cDao.classificacaoGeral();
     		}
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}finally {
-			RequestDispatcher rd = request.getRequestDispatcher("jogos.jsp");
+			RequestDispatcher rd = request.getRequestDispatcher("classificacao.jsp");
 			request.setAttribute("erro", erro);
 			request.setAttribute("saida", saida);
-			request.setAttribute("jogos", jogos);
+			request.setAttribute("resultados", resultados);
 			rd.forward(request, response);
 		}
 	}
-	
 
 }

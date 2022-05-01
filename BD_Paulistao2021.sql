@@ -29,7 +29,9 @@ CREATE TABLE jogos (
 	FOREIGN KEY (codigoTimeA) REFERENCES times (codigoTime),
 	FOREIGN KEY (codigoTimeB) REFERENCES times (codigoTime),
 )
-
+SELECT * FROM grupos
+SELECT * FROM times
+SELECT * FROM jogos
 --Insert na tabela times
 INSERT INTO times VALUES
 (1, 'Botafogo', 'Ribeirão Preto', 'Santa Cruz'),
@@ -119,15 +121,14 @@ AS
 	END
 --View com dados dos times nos grupos
 	CREATE VIEW vwGrupos AS
-	SELECT g.letra AS grupo, t.nomeTime AS participantes, t.cidade, t.estadio, g.codigoTime AS codigo_time
-	FROM grupos g
-	LEFT JOIN times t
-	ON g.codigoTime = t.codigoTime
+		SELECT g.letra AS grupo, t.nomeTime AS participantes, t.cidade, t.estadio, g.codigoTime AS codigo_time
+		FROM grupos g
+		LEFT JOIN times t
+		ON g.codigoTime = t.codigoTime
 
 	SELECT * FROM vwGrupos ORDER BY grupo
-	DECLARE @saida1 VARCHAR(50) 
-	EXEC sp_divideGrupos OUTPUT
-	PRINT @saida1
+	
+	EXEC sp_divideGrupos 
 
 --Procedure responsável pela geração dos confrontos
 CREATE PROCEDURE sp_jogos (@letra VARCHAR(2))
@@ -202,6 +203,16 @@ AS
 	END
 EXEC sp_datasRodada
 
+CREATE VIEW vwJogos
+AS
+	SELECT j.codigoJogo, j.codigoTimeA, j.codigoTimeB, j.golsTimeA, j.golsTimeB, j.dia,
+	t1.nomeTime AS timeA, t2. nomeTime AS timeB
+	FROM jogos j
+	LEFT JOIN times t1 ON
+	j.codigoTimeA = t1.codigoTime 
+	LEFT JOIN times t2 ON
+	j.codigoTimeB = t2.codigoTime 
+
 
 --Function de gerar classificação
 CREATE FUNCTION fn_classificacao(@letra varchar)
@@ -224,23 +235,81 @@ RETURNS TABLE RETURN(
         AND letra = @letra
     GROUP BY t.nomeTime
 )
+CREATE VIEW vwClassificacaoGeral
+AS
+	SELECT * FROM dbo.fn_classificacao('A')
+	UNION ALL
+	SELECT * FROM dbo.fn_classificacao('B')
+	UNION ALL 
+	SELECT * FROM dbo.fn_classificacao('C')
+	UNION ALL 
+	SELECT * FROM dbo.fn_classificacao('D')
+
+SELECT * FROM vwClassificacaoGeral
+ORDER BY pontos DESC, vitorias DESC, golsMarcados DESC, saldoGols DESC
+
+
 
 SELECT * FROM dbo.fn_classificacao('A')
-UNION ALL
+ORDER BY pontos DESC, vitorias DESC, golsMarcados DESC, saldoGols DESC
+
 SELECT * FROM dbo.fn_classificacao('B')
-UNION ALL 
+ORDER BY pontos DESC, vitorias DESC, golsMarcados DESC, saldoGols DESC
+
 SELECT * FROM dbo.fn_classificacao('C')
-UNION ALL 
+ORDER BY pontos DESC, vitorias DESC, golsMarcados DESC, saldoGols DESC
+
 SELECT * FROM dbo.fn_classificacao('D')
 ORDER BY pontos DESC, vitorias DESC, golsMarcados DESC, saldoGols DESC
 
-CREATE VIEW vwJogos
+CREATE FUNCTION fn_QuartasDeFinal()
+RETURNS @jogos TABLE(
+NomeTimeA VARCHAR(50),
+NomeTimeB VARCHAR(50)
+)
 AS
-	SELECT j.codigoJogo, j.codigoTimeA, j.codigoTimeB, j.golsTimeA, j.golsTimeB, j.dia,
-	t1.nomeTime AS timeA, t2. nomeTime AS timeB
-	FROM jogos j
-	LEFT JOIN times t1 ON
-	j.codigoTimeA = t1.codigoTime 
-	LEFT JOIN times t2 ON
-	j.codigoTimeB = t2.codigoTime 
+BEGIN
+	DECLARE @vetorGrupos VARCHAR(5), @cont INT, @NomeTimeA VARCHAR(50), @NomeTimeB VARCHAR(50)
+	DECLARE  @tabelaGrupo TABLE
+	(indice int NULL , nomeTime varchar(50) NULL)
+	SET @vetorGrupos = 'ABCD'
+	SET @cont = 1
+	WHILE @cont <= 4
+	BEGIN
+		DELETE FROM @tabelaGrupo
+		INSERT INTO @tabelaGrupo (indice,nomeTime) SELECT TOP 2 ROW_NUMBER() OVER (ORDER BY pontos DESC, vitorias, golsMarcados, saldoGols) AS id,nomeTime FROM fn_classificacao(SUBSTRING(@vetorGrupos, @cont, 1)) ORDER BY pontos DESC, vitorias, golsMarcados, saldoGols
+		SET @NomeTimeA = (SELECT nomeTime FROM @tabelaGrupo WHERE indice = 1)
+		SET @NomeTimeB = (SELECT nomeTime FROM @tabelaGrupo WHERE indice = 2)
+		INSERT INTO @jogos VALUES (@NomeTimeA,@NomeTimeB)
+		SET @cont = @cont + 1
+	END
+	RETURN
+END
 
+SELECT * FROM fn_QuartasDeFinal()
+
+
+-----------------TRIGGERS-----------------
+CREATE TRIGGER t_blockDelTimes ON times
+FOR DELETE, INSERT, UPDATE 
+AS
+BEGIN
+	ROLLBACK TRANSACTION
+	RAISERROR('Não é permitido alterar registros de times', 16, 1)
+END
+GO
+CREATE TRIGGER t_blockInsertJogos ON jogos
+AFTER INSERT, DELETE
+AS
+BEGIN
+	ROLLBACK TRANSACTION
+	RAISERROR('Não é permitido alterar registros de Jogos', 16, 1)
+END
+GO
+CREATE TRIGGER t_blockUpdateGrupos ON grupos
+FOR UPDATE, INSERT, DELETE
+AS
+BEGIN
+	ROLLBACK TRANSACTION
+	RAISERROR('Não é permitido alterar registros de Grupos', 16, 1)
+END

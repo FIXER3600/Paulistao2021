@@ -53,5 +53,33 @@ public class JogoDao implements IJogoDao {
 		
 		return jogos;
 	}
+
+	@Override
+	public List<Jogo> buscarJogoPorData(String data) throws SQLException, ClassNotFoundException {
+		List<Jogo> jogos = new ArrayList<Jogo>();
+		Connection c = gDao.getConnection();
+		String sql = "SELECT * FROM vwJogos WHERE dia = ?";
+		PreparedStatement ps = c.prepareStatement(sql);
+		ps.setString(1, data);
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Jogo j = new Jogo();
+			j.setCodigoJogo(rs.getInt("codigoJogo"));
+			j.setTimeA(rs.getString("timeA"));
+			j.setTimeB(rs.getString("timeB"));
+			j.setGolsTimeA(rs.getInt("golsTimeA"));
+			j.setGolsTimeA(rs.getInt("golsTimeB"));
+			j.setData(rs.getString("dia"));
+			
+			jogos.add(j);
+		}
+		
+		rs.close();
+		ps.close();
+		c.close();
+		
+		return jogos;
+	}
 	
 }

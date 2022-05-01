@@ -10,11 +10,15 @@
 </head>
 <body>
 	<div class="header">
-		  <ul>
-			<a href="index.jsp" class="link-grupos"><li>Grupos</li></a>
-			<a href="jogos.jsp" class="link-jogos"><li>Jogos</li></a>
-		  </ul>
-	  </div><br><br>
+		<ul>
+			<li><a href="index.jsp" class="link-grupos">Grupos</a></li>
+			<li><a href="jogos.jsp" class="link-jogos">Jogos</a></li>
+			<li><a href="rodadas.jsp" class="link-rodadas">Rodadas</a></li>
+			<li><a href="classificacao.jsp" class="link-grupos">Classificacao</a></li>
+		</ul>
+	</div>
+	<br>
+	<br>
 
 	<div align="center">
 		<c:if test="${not empty erro}">
@@ -36,10 +40,9 @@
 				<c:forEach items="${grupos}" var="g">
 					<table>
 						<tr>
-							<th><caption>
-									<c:out value="${g.getNome()}">
-									</c:out>
-								</caption></th>
+							<th><c:out value="${g.getNome()}">
+								</c:out>
+							</th>
 						</tr>
 						<tr>
 							<th class='Grupo'>Nome</th>
