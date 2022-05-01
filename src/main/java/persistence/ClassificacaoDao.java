@@ -38,7 +38,6 @@ public class ClassificacaoDao implements IClassificacaoDao{
 			r.setPontos(rs.getInt("pontos"));
 			resultados.add(r);
 		}
-		System.out.println(resultados);
 		return resultados;
 	}
 
@@ -67,6 +66,7 @@ public class ClassificacaoDao implements IClassificacaoDao{
 		}	
 		
 		return resultados;
+		
 	}
 	
 

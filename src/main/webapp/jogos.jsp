@@ -15,6 +15,7 @@
 			<li><a href="jogos.jsp" class="link-jogos">Jogos</a></li>
 			<li><a href="rodadas.jsp" class="link-rodadas">Rodadas</a></li>
 			<li><a href="classificacao.jsp" class="link-classificacao">Classificacao</a></li>
+			<li><a href="quartas.jsp" class="link-quartas">Classificacao</a></li>
 		</ul>
 	</div>
 	<br>

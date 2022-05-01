@@ -148,6 +148,7 @@ AS
 --Procedure auxiliar da geração de de jogos
 CREATE PROC sp_auxGerarJogos
 AS
+	
 	DECLARE @vet_letras VARCHAR(2),
 			@cont		INT
 	SET @cont = 1
@@ -169,6 +170,7 @@ AS
 EXEC sp_auxGerarJogos
 SELECT * FROM jogos 
 
+
 CREATE PROCEDURE sp_datasRodada
 AS
 	DECLARE @data			DATE,
@@ -176,9 +178,8 @@ AS
 			@qtd			INT,
 			@data_inicial	DATE
 	SET @id = 1
-	SET @qtd = (SELECT COUNT (*) FROM jogos)
 	SET @data_inicial = '2021-02-28'
-	WHILE @id <= @qtd
+	WHILE @id <= 96
 	BEGIN
 		SET @data =
 			CASE
@@ -202,6 +203,8 @@ AS
 			SET @id = @id + 1
 	END
 EXEC sp_datasRodada
+
+SELECT * FROM jogos
 
 CREATE VIEW vwJogos
 AS
@@ -248,6 +251,9 @@ AS
 SELECT * FROM vwClassificacaoGeral
 ORDER BY pontos DESC, vitorias DESC, golsMarcados DESC, saldoGols DESC
 
+SELECT ROW_NUMBER() OVER (
+            ORDER BY codigoJogo
+    ) FROM jogos
 
 
 SELECT * FROM dbo.fn_classificacao('A')
@@ -286,11 +292,12 @@ BEGIN
 	RETURN
 END
 
-SELECT * FROM fn_QuartasDeFinal()
+
 
 
 -----------------TRIGGERS-----------------
-CREATE TRIGGER t_blockDelTimes ON times
+---------------------------------
+CREATE TRIGGER t_blockDelInsertUpdateTimes ON times
 FOR DELETE, INSERT, UPDATE 
 AS
 BEGIN
@@ -298,7 +305,7 @@ BEGIN
 	RAISERROR('Não é permitido alterar registros de times', 16, 1)
 END
 GO
-CREATE TRIGGER t_blockInsertJogos ON jogos
+CREATE TRIGGER t_blockInsertDeleteJogos ON jogos
 AFTER INSERT, DELETE
 AS
 BEGIN
@@ -306,7 +313,7 @@ BEGIN
 	RAISERROR('Não é permitido alterar registros de Jogos', 16, 1)
 END
 GO
-CREATE TRIGGER t_blockUpdateGrupos ON grupos
+CREATE TRIGGER t_blockUpdateInsertDeleteGrupos ON grupos
 FOR UPDATE, INSERT, DELETE
 AS
 BEGIN

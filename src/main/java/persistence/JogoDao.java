@@ -81,5 +81,23 @@ public class JogoDao implements IJogoDao {
 		
 		return jogos;
 	}
+
+	@Override
+	public List<Jogo> listarQuartas() throws SQLException, ClassNotFoundException {
+		List<Jogo> jogos = new ArrayList<Jogo>();
+		Connection c = gDao.getConnection();
+		String sql = "SELECT * FROM fn_QuartasDeFinal()";
+		PreparedStatement ps = c.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Jogo j = new Jogo();
+			j.setTimeA(rs.getString("NomeTimeA"));
+			j.setTimeB(rs.getString("NomeTimeB"));
+			jogos.add(j);
+		}
+		
+		return jogos;
+	}
 	
 }

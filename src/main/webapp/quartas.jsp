@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Rodada</title>
+<title>Quartas de Finais</title>
 </head>
 <body>
 	<div class="header">
@@ -19,30 +19,35 @@
 	</div>
 	<br>
 	<br>
-	<div class="jogos">
+	<div align="center">
+		<c:if test="${not empty erro}">
+			<h4>
+				<c:out value="${erro}"></c:out>
+			</h4>
+		</c:if>
+	</div>
+	
+	<div class="quartas-de-finais">
 		<img alt="Logo" src="./assets/logo.png">
-		<form action="ServletRodada" method="post">
-			<input type="date" name="data">
-			<button>Buscar Rodada</button>
+		<form action="ServletQuartas" method="post">
+			<input type="submit" id=mostrar_quartas name=mostrar_quartas
+				value="Gerar Quartas de Finais">
 		</form>
-		<table>
-			<tr>
-				<th class='Jogo'>Time A</th>
-				<th class='Jogo'>Time B</th>
-				<th class='Jogo'>Gols (Time A)</th>
-				<th class='Jogo'>Gols(Time B)</th>
-				<th class='Jogo'>Data da Rodada</th>
-			</tr>
-			<c:forEach items="${jogos}" var="j">
+		<div>
+			<table>
 				<tr>
-					<td align="center"><c:out value="${j.getTimeA()}"></c:out></td>
-					<td align="center"><c:out value="${j.getTimeB()}"></c:out></td>
-					<td align="center"><c:out value="${j.getGolsTimeA()}"></c:out></td>
-					<td align="center"><c:out value="${j.getGolsTimeA()}"></c:out></td>
-					<td align="center"><c:out value="${j.getData()}"></c:out></td>
+					<th class='Quartas'>Time A</th>
+					<th class='Quartas'>Time B</th>
 				</tr>
-			</c:forEach>
-		</table>
+				<c:forEach items="${jogos}" var="j">
+					<tr>
+						<td align="center"><c:out value="${j.getTimeA()}"></c:out></td>
+						<td align="center"><c:out value="${j.getTimeB()}"></c:out></td>
+						
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
 	</div>
 	<div align="center">
 		<c:if test="${not empty saida}">
@@ -59,6 +64,5 @@
 			</c:if>
 		</div>
 	</div>
-
 </body>
 </html>

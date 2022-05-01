@@ -30,19 +30,32 @@ public class ServletClassificacaoGrupo extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String nome = request.getParameter("nome");
-		List<Resultado> resultados = new ArrayList<Resultado>();
+		String botao = request.getParameter("grupos");
+		List<Resultado> resA = new ArrayList<Resultado>();
+		List<Resultado> resB = new ArrayList<Resultado>();
+		List<Resultado> resC = new ArrayList<Resultado>();
+		List<Resultado> resD = new ArrayList<Resultado>();
+
 		String erro = "";
 		String saida = "";
 		try {
-			resultados = this.cDao.classificacaoPorGrupo(nome);
+			if (botao.equals("Classificacao por Grupo")) {
+				resA = this.cDao.classificacaoPorGrupo("A");
+				resB = this.cDao.classificacaoPorGrupo("B");
+				resC = this.cDao.classificacaoPorGrupo("C");
+				resD = this.cDao.classificacaoPorGrupo("D");
+			}
+
 		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			RequestDispatcher rd = request.getRequestDispatcher("classificacao.jsp");
+			request.setAttribute("resultadoGrupoA", resA);
+			request.setAttribute("resultadoGrupoB", resB);
+			request.setAttribute("resultadoGrupoC", resC);
+			request.setAttribute("resultadoGrupoD", resD);
 			request.setAttribute("erro", erro);
 			request.setAttribute("saida", saida);
-			request.setAttribute("resultados", resultados);
 			rd.forward(request, response);
 		}
 	}
